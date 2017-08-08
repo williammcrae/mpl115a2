@@ -1,6 +1,6 @@
 {
   "name": "mpl115a2",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Simple module for reading data from a Freescale MPL115A2 I2C Barometric Pressure/Temperature Sensor.",
   "main": "mpl115A2.js",
   "author": "William McRae",
