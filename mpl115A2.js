@@ -33,11 +33,6 @@ var MPL115A2 = function (opts) {
     self.wire = new Wire(this.options.address, {device: this.options.device, debug: this.options.debug});
 
     self.events.on('calibrated', function () {
-        console.log('got calibrated');
-        console.log('a0: ' + self.a0);
-        console.log('b1: ' + self.b1);
-        console.log('b2: ' + self.b2);
-        console.log('c12: ' + self.c12);
     });
 
     debug = self.options.debug;
@@ -89,22 +84,18 @@ MPL115A2.prototype.calibrate = function (callback) {
     // Calibration coefficients needs to be read on startup
     this.readWordS16(C.MPL115A2_REGISTER_CAL_A0_MSB, function(value) {
       self.a0 = value / 8;
-      console.log("get a0: " + value);
     });
 
     this.readWordS16(C.MPL115A2_REGISTER_CAL_B1_MSB, function(value) {
        self.b1 =  value / 8192;
-       console.log("get b1: " + value);
     });
 
     this.readWordS16(C.MPL115A2_REGISTER_CAL_B2_MSB, function (value) {
       self.b2 = value / 16384;
-      console.log("get b2: " + value);
     });
 
     this.readWordS16(C.MPL115A2_REGISTER_CAL_C12_MSB, function(value) {
       self.c12 = (value >> 2) / 4194304;
-      console.log("get c12: " + value);
     });
 };
 
@@ -119,7 +110,6 @@ MPL115A2.prototype.waitForCalibrationData = function (callback) {
       typeof this.c12 !== 'undefined';
 
     if (ready) {
-        console.log('is ready');
         self.events.emit('calibrated');
         callback();
     } else {
@@ -132,29 +122,22 @@ MPL115A2.prototype.waitForCalibrationData = function (callback) {
 MPL115A2.prototype.read = function (callback) {
   var self = this;
 
-  console.log("get data");
   self.wire.write([C.MPL115A2_CONVERT, C.MPL115A2_REGISTER_P_ADC_MSB], function(err) {
-      console.log("get data w1");
       if (err) {
           throw(err);
       }
       setTimeout(function() {
           self.wire.write([C.MPL115A2_REGISTER_P_ADC_MSB], function(err) {
-              console.log("get data w2");
               if (err) {
                   throw(err);
               }
               self.readWordU16(C.MPL115A2_REGISTER_P_ADC_MSB, function(value) {
                 var raw_p = value >> 6;
-                console.log("get data r1 " + value + " / " + raw_p);
                 self.readWordU16(C.MPL115A2_REGISTER_T_ADC_MSB, function(value) {
                   var raw_t = value >> 6;
-                  console.log("get data r2 " + value + " / " + raw_t);
                   var p = self.a0 + (self.b1 + self.c12 * raw_t) * raw_p + self.b2 * raw_t;
                   p = ((65 / 1023) * p) + 50;
                   var t = (raw_t - 498) / -5.35 + 25;
-                  console.log("get data done " + t + " / " + p);
-                  console.log("get data done " + t.toFixed(2) + " / " + p.toFixed(2));
                   callback({t:t.toFixed(2), p:p.toFixed(2)});
                 });
               });
