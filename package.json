@@ -1,0 +1,16 @@
+{
+  "name": "mpl115A2",
+  "version": "0.1.0",
+  "description": "Simple module for reading data from a Freescale MPL115A2 I2C Barometric Pressure/Temperature Sensor.",
+  "main": "mpl115A2.js",
+  "author": "William McRae",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/williammcrae/mpl115A2.git"
+  },
+  "dependencies": {
+    "i2c": "0.2.x",
+    "underscore": "~1.5.2"
+  }
+}
