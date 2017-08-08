@@ -113,17 +113,18 @@ MPL115A2.prototype.waitForCalibrationData = function (callback) {
     var self = this;
 
     ready =
-      this.a0 !== 'undefined' &&
-      this.b1 !== 'undefined' &&
-      this.b2 !== 'undefined' &&
-      this.c12 !== 'undefined';
+      typeof this.a0 !== 'undefined' &&
+      typeof this.b1 !== 'undefined' &&
+      typeof this.b2 !== 'undefined' &&
+      typeof this.c12 !== 'undefined';
 
     if (ready) {
+        console.log('is ready');
         self.events.emit('calibrated');
         callback();
     } else {
         setTimeout(function () {
-            self.waitForCalibrationData();
+            self.waitForCalibrationData(callback);
         }, 5);
     }
 };
@@ -143,10 +144,10 @@ MPL115A2.prototype.read = function (callback) {
               if (err) {
                   throw(err);
               }
-              self.readWordS16(C.MPL115A2_REGISTER_P_ADC_MSB, function(value) {
+              self.readWordU16(C.MPL115A2_REGISTER_P_ADC_MSB, function(value) {
                 var raw_p = value >> 6;
                 console.log("get data r1 " + value + " / " + raw_p);
-                self.readWordS16(C.MPL115A2_REGISTER_T_ADC_MSB, function(value) {
+                self.readWordU16(C.MPL115A2_REGISTER_T_ADC_MSB, function(value) {
                   var raw_t = value >> 6;
                   console.log("get data r2 " + value + " / " + raw_t);
                   var p = self.a0 + (self.b1 + self.c12 * raw_t) * raw_p + self.b2 * raw_t;
@@ -162,13 +163,4 @@ MPL115A2.prototype.read = function (callback) {
     });
 };
 
-console.log('hello');
-barometer = new MPL115A2();
-
-barometer.calibrate(function() {
-  console.log('calibrated');
-  barometer.read(function (data) {
-    console.log("Temperature:", data.t);
-    console.log("Pressure:", data.p);
-  });
-});
+module.exports = MPL115A2;
